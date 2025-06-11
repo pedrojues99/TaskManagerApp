@@ -20,7 +20,7 @@ class FakeTaskRepository @Inject constructor() : TaskRepository {
     }
 
     override suspend fun deleteTask(task: Task) {
-        TODO("Not yet implemented")
+
     }
 
     override suspend fun modifyTask(task: Task): Boolean {
