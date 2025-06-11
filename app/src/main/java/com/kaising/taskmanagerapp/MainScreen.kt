@@ -34,17 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kaising.domain.model.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlin.concurrent.thread
-import kotlin.div
-import kotlin.math.roundToInt
-import kotlin.text.compareTo
-import kotlin.unaryMinus
 
 @Composable
 fun TaskScreen(
@@ -92,13 +86,16 @@ fun SwipeableButtons(
     suspend fun CoroutineScope.onDragStopped() {
         if (x >= screenWidthDp / 0.8) {
             onArchive(task)
+            x = 0f
         } else if (x <= -screenWidthDp / 0.8) {
             onDelete(task)
+            x = 0f
+        } else {
+            time = 500
+            x = 0f
+            delay(500)
+            time = 0
         }
-        time = 500
-        x = 0f
-        delay(500)
-        time = 0
     }
     Row(
         modifier = Modifier

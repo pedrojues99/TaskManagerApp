@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kaising.domain.model.Task
 import com.kaising.domain.repository.TaskRepository
+import com.kaising.domain.usecase.AddTaskUseCase
+import com.kaising.domain.usecase.DeleteTaskUseCase
 import com.kaising.domain.usecase.GetTasksUseCase
 import com.kaising.domain.usecase.ModifyTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,10 +19,12 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
-    private val modifyTaskUseCase: ModifyTaskUseCase
+    private val modifyTaskUseCase: ModifyTaskUseCase,
+    private val addTaskUseCase: AddTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
 ) : ViewModel() {
 
-    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
+    private val _tasks = MutableStateFlow<List<Task>>(listOf())
     val tasks: StateFlow<List<Task>> = _tasks
 
     init {
@@ -31,7 +35,7 @@ class TaskViewModel @Inject constructor(
     fun getTasks() {
         viewModelScope.launch {
             getTasksUseCase().collect { taskList ->
-                _tasks.value = taskList
+                _tasks.value = taskList.toMutableList()
             }
         }
     }
@@ -42,17 +46,32 @@ class TaskViewModel @Inject constructor(
         }
     }
 
-    fun deleteTask(taskToDelete: Task) {
-        _tasks.update { currentTasks ->
-            currentTasks.filterNot { it.id == taskToDelete.id } // Create a new list without the task
+    fun addTask(task: Task) {
+        viewModelScope.launch {
+            addTaskUseCase(task)
         }
-        println("Deleted: ${taskToDelete.title}")
+        _tasks.update { currentTasks ->
+            currentTasks + task
+        }
     }
 
-    fun archiveTask(taskToArchive: Task) {
-        _tasks.update { currentTasks ->
-            currentTasks.filterNot { it.id == taskToArchive.id }
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            deleteTaskUseCase(task)
         }
-        println("Archived: ${taskToArchive.title}")
+
+        _tasks.update { currentTasks ->
+            currentTasks.filterNot { it.id == task.id }
+        }
+    }
+
+    fun archiveTask(task: Task) {
+        viewModelScope.launch {
+            deleteTaskUseCase(task)
+        }
+
+        _tasks.update { currentTasks ->
+            currentTasks.filterNot { it.id == task.id }
+        }
     }
 }

@@ -1,25 +1,29 @@
 package com.kaising.data.repository
 
-import android.util.Log
 import com.kaising.domain.model.Task
 import com.kaising.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class TaskRepository @Inject constructor(
+class TaskRepositoryImpl @Inject constructor(
     private val dao: TaskDao
 ) : TaskRepository {
 
-    override fun getTasks(): List<Task> = dao.getAllTasks().map { it.toTask() }
-
+    override suspend fun getTasks(): List<Task> = dao.getAllTasks().map { it.toTask() }
 
     override suspend fun addTask(task: Task): Boolean {
         val result = dao.insertTask(task.toTaskEntity())
         return result.toInt() != -1
     }
 
-    override fun modifyTask(task: Task): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun deleteTask(task: Task) {
+        dao.deleteTask(task.toTaskEntity())
     }
+
+    override suspend fun modifyTask(task: Task): Boolean {
+        val result = dao.insertTask(task.toTaskEntity())
+        return result.toInt() != -1
+    }
+
 
     private fun TaskEntity.toTask(): Task {
         return Task(

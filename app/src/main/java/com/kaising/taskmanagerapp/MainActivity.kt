@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,12 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kaising.domain.model.Task
 import com.kaising.taskmanagerapp.ui.theme.TaskManagerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,16 +59,20 @@ class MainActivity @Inject constructor() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        var contador = 4
         setContent {
             TaskManagerAppTheme {
                 val viewModel = hiltViewModel<TaskViewModel>()
                 Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-                    Button(onClick = { viewModel }) { }
+                    Column {
+                        Spacer(Modifier.height(40.dp))
+                        Button(onClick = { viewModel.addTask(Task(contador,"prueba", true, "prueba"))
+                            contador ++
+                        }) { Text("Add task") }
+                    }
                 }) { innerPadding ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         TaskScreen(modifier = Modifier.padding(innerPadding), viewModel)
-                        DraggableText()
                     }
                 }
             }

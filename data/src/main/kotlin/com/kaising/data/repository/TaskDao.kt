@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface TaskDao {
 
     @Query("SELECT * FROM tasks")
-    fun getAllTasks(): List<TaskEntity>
+    suspend fun getAllTasks(): List<TaskEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: TaskEntity): Long
