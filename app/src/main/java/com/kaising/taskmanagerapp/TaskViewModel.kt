@@ -10,6 +10,7 @@ import com.kaising.domain.usecase.ModifyTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,5 +40,19 @@ class TaskViewModel @Inject constructor(
         viewModelScope.launch {
             modifyTaskUseCase(task)
         }
+    }
+
+    fun deleteTask(taskToDelete: Task) {
+        _tasks.update { currentTasks ->
+            currentTasks.filterNot { it.id == taskToDelete.id } // Create a new list without the task
+        }
+        println("Deleted: ${taskToDelete.title}")
+    }
+
+    fun archiveTask(taskToArchive: Task) {
+        _tasks.update { currentTasks ->
+            currentTasks.filterNot { it.id == taskToArchive.id }
+        }
+        println("Archived: ${taskToArchive.title}")
     }
 }
