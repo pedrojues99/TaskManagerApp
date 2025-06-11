@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
+    val fake = true
     @Provides
     @Singleton
     fun provideDatabase(
@@ -22,7 +22,7 @@ object DatabaseModule {
     ): AppDatabase = Room.databaseBuilder(
         context,
         AppDatabase::class.java,
-        "task_db"
+        if (fake) "fake_task_db" else "task_db"
     ).build()
 
     @Provides
