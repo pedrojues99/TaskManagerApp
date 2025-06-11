@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kaising.domain.model.Task
 import com.kaising.taskmanagerapp.ui.theme.TaskManagerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,9 +63,12 @@ class MainActivity @Inject constructor() : ComponentActivity() {
 
         setContent {
             TaskManagerAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                val viewModel = hiltViewModel<TaskViewModel>()
+                Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                    Button(onClick = { viewModel }) { }
+                }) { innerPadding ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        TaskScreen(modifier = Modifier.padding(innerPadding))
+                        TaskScreen(modifier = Modifier.padding(innerPadding), viewModel)
                         DraggableText()
                     }
                 }
@@ -72,134 +77,6 @@ class MainActivity @Inject constructor() : ComponentActivity() {
     }
 }
 
-@Composable
-private fun TaskScreen(
-    modifier: Modifier,
-    viewModel: TaskViewModel = hiltViewModel<TaskViewModel>()
-) {
-    val tasks = viewModel.tasks.collectAsState()
-
-
-    LazyColumn(modifier) {
-        items(
-            count = tasks.value.size,
-            key = { task -> task }
-        ) {
-            SwipeableListItemWithBackgroundButtons(
-                task = tasks.value[it],
-                modifyTask = { task -> viewModel.modifyTask(task) },
-                onArchive = { task -> viewModel.archiveTask(task) },
-                onDelete = { task -> viewModel.deleteTask(task) })
-        }
-
-    }
-}
-
-
-@Composable
-fun SwipeableListItemWithBackgroundButtons(
-    task: Task,
-    modifyTask: (Task) -> Unit,
-    onArchive: (Task) -> Unit,
-    onDelete: (Task) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val dismissState = rememberSwipeToDismissBoxState(
-        positionalThreshold = { distance: Float -> distance * 2 },
-        confirmValueChange = { targetValue ->
-            when (targetValue) {
-                SwipeToDismissBoxValue.StartToEnd -> { // Swipe a la Derecha (Archivar)
-                    onArchive(task)
-                    true // Permitir el dismiss
-                }
-
-                SwipeToDismissBoxValue.EndToStart -> { // Swipe a la Izquierda (Borrar)
-                    onDelete(task)
-                    true // Permitir el dismiss
-                }
-
-                SwipeToDismissBoxValue.Settled -> {
-                    false
-                }
-            }
-        }
-    )
-
-    SwipeToDismissBox(
-        state = dismissState,
-        modifier = modifier.padding(vertical = 16.dp),
-        enableDismissFromStartToEnd = true,
-        enableDismissFromEndToStart = true,
-        backgroundContent = {
-            val direction = dismissState.dismissDirection
-
-            val (backgroundColor, boxArrangement, icon) = when (direction) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    Triple(
-                        Color.Green.copy(alpha = 0.7f),
-                        Arrangement.Start,
-                        Icons.Default.Favorite
-                    )
-                }
-
-                SwipeToDismissBoxValue.EndToStart -> {
-                    Triple(Color.Red.copy(alpha = 0.7f), Arrangement.End, Icons.Default.Clear)
-                }
-
-                else -> Triple(Color.Transparent, Arrangement.Center, null)
-
-            }
-            Row(Modifier.fillMaxSize(), horizontalArrangement = boxArrangement) {
-                Box(
-                    Modifier
-                        .size(80.dp)
-                        .background(backgroundColor)
-                        .padding(vertical = 16.dp), Alignment.Center
-                ) {
-                    icon?.let {
-                        Icon(icon, "Icon")
-                    }
-                }
-            }
-
-        }
-    ) {
-        var isChecked by remember { mutableStateOf(task.isCompleted) }
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .height(80.dp) // Asumiendo la altura de tu Card
-        ) {
-            Row(
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = task.title,
-                        color = MaterialTheme.colorScheme.onSurface
-                    ) // Adapta colores a tu tema
-                    task.description?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                }
-                Checkbox(isChecked, onCheckedChange = {
-                    isChecked = it
-                    modifyTask(task.copy(isCompleted = isChecked))
-                })
-            }
-        }
-    }
-}
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 private fun DraggableText() {
