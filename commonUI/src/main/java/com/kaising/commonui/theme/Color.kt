@@ -1,4 +1,4 @@
-package com.kaising.taskmanagerapp.ui.theme
+package com.kaising.commonui.theme
 
 import androidx.compose.ui.graphics.Color
 

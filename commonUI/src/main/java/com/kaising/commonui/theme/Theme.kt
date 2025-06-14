@@ -1,6 +1,5 @@
-package com.kaising.taskmanagerapp.ui.theme
+package com.kaising.commonui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,24 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/*
+@Composable
+fun AppTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = if (useDarkTheme) DarkColorScheme else LightColorScheme
+
+    MaterialTheme(
+        colorScheme = colors,
+        typography = AppTypography,
+        shapes = AppShapes,
+        content = content
+    )
+}
+
+
+ */
 @Composable
 fun TaskManagerAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

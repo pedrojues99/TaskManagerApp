@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":di"))
+    implementation(project(":commonUI"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.hilt.android)
@@ -67,4 +68,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.room.runtime)
+
 }
