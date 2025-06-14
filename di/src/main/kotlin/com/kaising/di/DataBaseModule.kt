@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    val fake = true
+    const val fake = true
     @Provides
     @Singleton
     fun provideDatabase(
