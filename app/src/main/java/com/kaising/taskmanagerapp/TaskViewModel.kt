@@ -1,14 +1,14 @@
 package com.kaising.taskmanagerapp
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kaising.domain.model.Task
-import com.kaising.domain.repository.TaskRepository
+import com.kaising.commonui.model.TaskUiModel
 import com.kaising.domain.usecase.AddTaskUseCase
 import com.kaising.domain.usecase.DeleteTaskUseCase
 import com.kaising.domain.usecase.GetTasksUseCase
 import com.kaising.domain.usecase.ModifyTaskUseCase
+import com.kaising.taskmanagerapp.mapper.toDomain
+import com.kaising.taskmanagerapp.mapper.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,40 +24,40 @@ class TaskViewModel @Inject constructor(
     private val deleteTaskUseCase: DeleteTaskUseCase,
 ) : ViewModel() {
 
-    private val _tasks = MutableStateFlow<List<Task>>(listOf())
-    val tasks: StateFlow<List<Task>> = _tasks
+    private val _tasks = MutableStateFlow<List<TaskUiModel>>(listOf())
+    val tasks: StateFlow<List<TaskUiModel>> = _tasks
 
     init {
-        Log.d("TaskViewModel", "?")
         getTasks()
     }
 
     fun getTasks() {
         viewModelScope.launch {
-            getTasksUseCase().collect { taskList ->
-                _tasks.value = taskList.toMutableList()
+            getTasksUseCase()
+                .collect { taskList ->
+                    _tasks.value = taskList.map { it.toUiModel() }
             }
         }
     }
 
-    fun modifyTask(task: Task) {
+    fun modifyTask(task: TaskUiModel) {
         viewModelScope.launch {
-            modifyTaskUseCase(task)
+            modifyTaskUseCase(task.toDomain())
         }
     }
 
-    fun addTask(task: Task) {
+    fun addTask(task: TaskUiModel) {
         viewModelScope.launch {
-            addTaskUseCase(task)
+            addTaskUseCase(task.toDomain())
         }
         _tasks.update { currentTasks ->
             currentTasks + task
         }
     }
 
-    fun deleteTask(task: Task) {
+    fun deleteTask(task: TaskUiModel) {
         viewModelScope.launch {
-            deleteTaskUseCase(task)
+            deleteTaskUseCase(task.toDomain())
         }
 
         _tasks.update { currentTasks ->
@@ -65,9 +65,9 @@ class TaskViewModel @Inject constructor(
         }
     }
 
-    fun archiveTask(task: Task) {
+    fun archiveTask(task: TaskUiModel) {
         viewModelScope.launch {
-            deleteTaskUseCase(task)
+            deleteTaskUseCase(task.toDomain())
         }
 
         _tasks.update { currentTasks ->

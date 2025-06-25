@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.kaising.domain.model.Task
+import com.kaising.commonui.model.TaskUiModel
 import com.kaising.commonui.theme.TaskManagerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,7 +33,7 @@ class MainActivity @Inject constructor() : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                     Column {
                         Spacer(Modifier.height(40.dp))
-                        Button(onClick = { viewModel.addTask(Task(contador,"prueba", true, "prueba"))
+                        Button(onClick = { viewModel.addTask(TaskUiModel(contador,"prueba", true, "prueba"))
                             contador ++
                         }) { Text("Add task") }
                     }
